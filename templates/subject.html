@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}{{ subject_name }} - 考研笔记复习网站{% endblock %}
+
+{% block content %}
+<div class="subject-header">
+    <h2>{{ subject_name }}</h2>
+    <p>请选择复习数量</p>
+</div>
+
+<div class="review-options">
+    <form action="{{ url_for('review_page', subject_name=subject_name) }}" method="GET">
+        <div class="form-group">
+            <label for="count">复习数量:</label>
+            <input type="number" id="count" name="count" value="30" min="1" max="100">
+        </div>
+        <button type="submit" class="btn btn-primary">开始复习</button>
+    </form>
+</div>
+
+<div class="back-link">
+    <a href="{{ url_for('index') }}">返回首页</a>
+</div>
+{% endblock %}

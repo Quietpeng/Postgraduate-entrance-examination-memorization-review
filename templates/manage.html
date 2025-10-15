@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}管理 - 考研笔记复习网站{% endblock %}
+
+{% block content %}
+<div class="manage-header">
+    <h2>管理功能</h2>
+</div>
+
+<div class="manage-sections">
+    <!-- 创建新科目 -->
+    <div class="manage-section">
+        <h3>创建新科目</h3>
+        <form id="create-subject-form">
+            <div class="form-group">
+                <label for="subject-name">科目名称:</label>
+                <input type="text" id="subject-name" name="subject_name" required>
+            </div>
+            <button type="submit" class="btn btn-primary">创建科目</button>
+        </form>
+    </div>
+    
+    <!-- 导入图片 -->
+    <div class="manage-section">
+        <h3>导入图片</h3>
+        <form id="import-image-form" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="subject-select">选择科目:</label>
+                <select id="subject-select" name="subject_name" required>
+                    <option value="">请选择科目</option>
+                    {% for subject in subjects %}
+                        <option value="{{ subject }}">{{ subject }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="image-file">选择图片:</label>
+                <input type="file" id="image-file" name="image" accept="image/*" required>
+            </div>
+            <button type="submit" class="btn btn-primary">导入图片</button>
+        </form>
+    </div>
+</div>
+
+<div class="back-link">
+    <a href="{{ url_for('index') }}">返回首页</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 创建科目表单提交
+    document.getElementById('create-subject-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const subjectName = document.getElementById('subject-name').value;
+        
+        try {
+            const response = await fetch('/api/create_subject', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    subject_name: subjectName
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                alert('科目创建成功！');
+                // 重新加载页面以更新科目列表
+                location.reload();
+            } else {
+                alert('创建失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('创建科目时出错:', error);
+            alert('创建科目时出错，请查看控制台');
+        }
+    });
+    
+    // 导入图片表单提交
+    document.getElementById('import-image-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        try {
+            const response = await fetch('/api/import_image', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.status === 'success') {
+                alert('图片导入成功！');
+                // 清空文件选择
+                document.getElementById('image-file').value = '';
+            } else {
+                alert('导入失败: ' + result.message);
+            }
+        } catch (error) {
+            console.error('导入图片时出错:', error);
+            alert('导入图片时出错，请查看控制台');
+        }
+    });
+</script>
+{% endblock %}

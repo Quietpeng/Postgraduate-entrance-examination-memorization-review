@@ -1,0 +1,314 @@
+{% extends "base.html" %}
+
+{% block title %}复习 {{ subject_name }} - 考研笔记复习网站{% endblock %}
+
+{% block head %}
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .header {
+        background: linear-gradient(135deg, #4a6fa5 0%, #2c3e50 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+    
+    .subject-title {
+        font-size: 28px;
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    .progress-info {
+        font-size: 16px;
+        opacity: 0.9;
+        margin-top: 8px;
+    }
+    
+    .content {
+        padding: 30px;
+        text-align: center;
+    }
+    
+    .image-container {
+        margin: 20px 0;
+        position: relative;
+    }
+    
+    #review-image {
+        max-width: 100%;
+        max-height: 70vh;
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        background: #f8f9fa;
+        object-fit: contain;
+    }
+    
+    .familiarity-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+    
+    .familiarity-btn {
+        padding: 15px 30px;
+        font-size: 18px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        min-width: 120px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .familiar-btn {
+        background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+        color: white;
+    }
+    
+    .blur-btn {
+        background: linear-gradient(135deg, #FF9800 0%, #EF6C00 100%);
+        color: white;
+    }
+    
+    .strange-btn {
+        background: linear-gradient(135deg, #F44336 0%, #C62828 100%);
+        color: white;
+    }
+    
+    .familiarity-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .familiarity-btn:active {
+        transform: translateY(0);
+    }
+    
+    .navigation-buttons {
+        margin-top: 20px;
+    }
+    
+    #prev-button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background: linear-gradient(135deg, #90a4ae 0%, #607d8b 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    #prev-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    #prev-button:active {
+        transform: translateY(0);
+    }
+    
+    @media (max-width: 768px) {
+        .familiarity-buttons {
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .familiarity-btn {
+            width: 80%;
+            padding: 12px 20px;
+        }
+        
+        #prev-button {
+            width: 80%;
+            padding: 10px 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="review-header">
+    <h2>{{ subject_name }} 复习</h2>
+</div>
+
+<div id="review-container">
+    <div class="progress-info">
+        <span id="current-count">1</span> / <span id="total-count">{{ images|length }}</span>
+    </div>
+    
+    <div id="image-container">
+        <img id="review-image" src="/data/{{ images[0] }}" alt="复习图片">
+    </div>
+    
+    <div class="familiarity-buttons">
+        <button class="familiarity-btn familiar-btn" data-familiarity="familiar">熟悉</button>
+        <button class="familiarity-btn blur-btn" data-familiarity="blur">模糊</button>
+        <button class="familiarity-btn strange-btn" data-familiarity="strange">陌生</button>
+    </div>
+    
+    <div class="navigation-buttons">
+        <button id="prev-button" class="btn btn-secondary" style="display: none;">上一张</button>
+    </div>
+</div>
+
+<div class="back-link">
+    <a href="{{ url_for('subject_page', subject_name=subject_name) }}">返回科目选择</a>
+</div>
+
+<!-- 隐藏字段存储当前状态 -->
+<input type="hidden" id="subject-name" value="{{ subject_name }}">
+<input type="hidden" id="current-index" value="0">
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // 图片数据
+    const images = {{ images|tojson }};
+    let currentIndex = 0;
+    let history = []; // 存储历史记录
+    
+    // 更新进度显示
+    function updateProgress() {
+        document.getElementById('current-count').textContent = currentIndex + 1;
+        document.getElementById('total-count').textContent = images.length;
+        
+        // 控制上一张按钮的显示
+        const prevButton = document.getElementById('prev-button');
+        if (history.length > 0) {
+            prevButton.style.display = 'inline-block';
+        } else {
+            prevButton.style.display = 'none';
+        }
+    }
+    
+    // 显示下一张图片
+    function nextImage() {
+        // 将当前图片添加到历史记录
+        history.push({
+            index: currentIndex,
+            image: images[currentIndex]
+        });
+        
+        currentIndex++;
+        if (currentIndex >= images.length) {
+            // 复习完成
+            alert('复习完成！');
+            window.location.href = '{{ url_for("subject_page", subject_name=subject_name) }}';
+            return;
+        }
+        
+        // 更新图片
+        const imgElement = document.getElementById('review-image');
+        imgElement.src = '/data/' + images[currentIndex];
+        
+        // 更新进度
+        updateProgress();
+        
+        // 更新隐藏字段
+        document.getElementById('current-index').value = currentIndex;
+    }
+    
+    // 返回上一张图片
+    function prevImage() {
+        if (history.length === 0) return;
+        
+        // 从历史记录中取出上一张图片
+        const prev = history.pop();
+        currentIndex = prev.index;
+        
+        // 更新图片
+        const imgElement = document.getElementById('review-image');
+        imgElement.src = '/data/' + images[currentIndex];
+        
+        // 更新进度
+        updateProgress();
+        
+        // 更新隐藏字段
+        document.getElementById('current-index').value = currentIndex;
+    }
+    
+    // 发送熟悉度反馈
+        async function sendFamiliarity(familiarity) {
+            const currentImage = images[currentIndex];
+            
+            // 确保使用编码后的科目名称
+            let encodedImageKey = currentImage;
+            const subjectMapping = {{ subject_mapping|tojson }};
+            if (currentImage.includes('/')) {
+                const parts = currentImage.split('/', 2);
+                const subject = parts[0];
+                const filename = parts[1];
+                
+                // 查找编码后的科目名称
+                for (const [encoded, original] of Object.entries(subjectMapping)) {
+                    if (original === subject) {
+                        encodedImageKey = `${encoded}/${filename}`;
+                        break;
+                    }
+                }
+            }
+            
+            try {
+                const response = await fetch('/api/update_weight', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        image_key: encodedImageKey,
+                        familiarity: familiarity
+                    })
+                });
+                
+                if (response.ok) {
+                    // 显示下一张图片
+                    nextImage();
+                } else {
+                    console.error('更新权重失败:', await response.text());
+                }
+            } catch (error) {
+                console.error('发送熟悉度反馈时出错:', error);
+            }
+        }
+    
+    // 绑定按钮事件
+    document.addEventListener('DOMContentLoaded', function() {
+        // 熟悉度按钮事件
+        document.querySelectorAll('.familiarity-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const familiarity = this.getAttribute('data-familiarity');
+                sendFamiliarity(familiarity);
+            });
+        });
+        
+        // 上一张按钮事件
+        document.getElementById('prev-button').addEventListener('click', prevImage);
+        
+        // 初始化进度显示
+        updateProgress();
+    });
+</script>
+{% endblock %}

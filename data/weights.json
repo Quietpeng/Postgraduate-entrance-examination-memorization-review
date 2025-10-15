@@ -1,0 +1,18 @@
+{
+  "subject_mapping": {
+    "S000": "政治",
+    "S001": "数学"
+  },
+  "weights": {
+    "S000/example.jpg": 1.0,
+    "S001/example.jpg": 1.0
+  },
+  "last_reviewed": {
+    "S000/example.jpg": null,
+    "S001/example.jpg": null
+  },
+  "review_intervals": {
+    "S000/example.jpg": 1.0,
+    "S001/example.jpg": 1.0
+  }
+}

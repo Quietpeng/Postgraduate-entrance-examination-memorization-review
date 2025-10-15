@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>权重管理 - 考研笔记复习系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4a6fa5 0%, #2c3e50 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .page-title {
+            font-size: 28px;
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .subject-selector {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .subject-selector label {
+            font-size: 18px;
+            font-weight: 500;
+            margin-right: 15px;
+            color: #333;
+        }
+        
+        .subject-selector select {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: 2px solid #4a6fa5;
+            border-radius: 8px;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            min-width: 200px;
+        }
+        
+        .weight-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .weight-table th {
+            background: linear-gradient(135deg, #4a6fa5 0%, #2c3e50 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .weight-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .weight-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .thumbnail {
+            width: 100px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            background: #f8f9fa;
+        }
+        
+        .weight-value {
+            font-weight: 600;
+            color: #4a6fa5;
+        }
+        
+        .weight-input {
+            width: 80px;
+            padding: 8px;
+            border: 2px solid #4a6fa5;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .save-button {
+            background: linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .save-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .save-button:active {
+            transform: translateY(0);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            max-width: 90%;
+            max-height: 90%;
+        }
+        
+        .modal-image {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            transform: scale(1.1);
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+            font-size: 18px;
+        }
+        
+        @media (max-width: 768px) {
+            .weight-table {
+                font-size: 14px;
+            }
+            
+            .weight-table th,
+            .weight-table td {
+                padding: 10px 8px;
+            }
+            
+            .thumbnail {
+                width: 60px;
+                height: 50px;
+            }
+            
+            .weight-input {
+                width: 60px;
+                padding: 6px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <button class="back-button" onclick="window.location.href='/'">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <h1 class="page-title">权重管理</h1>
+        </div>
+        
+        <div class="content">
+            <div class="subject-selector">
+                <label for="subject-select">选择科目:</label>
+                <select id="subject-select">
+                    <option value="">请选择科目</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject }}">{{ subject }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div id="weight-table-container">
+                <div class="no-data">
+                    <i class="fas fa-info-circle" style="font-size: 48px; margin-bottom: 20px; color: #4a6fa5;"></i>
+                    <p>请选择一个科目来查看和管理权重</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 图片预览模态框 -->
+    <div id="image-modal" class="modal">
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <img id="modal-image" class="modal-image" src="" alt="Full size image">
+        </div>
+    </div>
+    
+    <script>
+        // 全局变量
+        let currentWeights = {};
+        
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 科目选择事件
+            document.getElementById('subject-select').addEventListener('change', loadWeights);
+        });
+        
+        // 加载权重数据
+        async function loadWeights() {
+            const subject = document.getElementById('subject-select').value;
+            if (!subject) {
+                document.getElementById('weight-table-container').innerHTML = 
+                    '<div class="no-data"><i class="fas fa-info-circle" style="font-size: 48px; margin-bottom: 20px; color: #4a6fa5;"></i><p>请选择一个科目来查看和管理权重</p></div>';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/weights/${subject}`);
+                if (response.ok) {
+                    const data = await response.json();
+                    // 修复数据结构不匹配的问题
+                    currentWeights = {};
+                    // 构造正确的键值对结构
+                    for (const [fileName, weight] of Object.entries(data)) {
+                        const fullKey = `${subject}/${fileName}`;
+                        currentWeights[fullKey] = weight;
+                    }
+                    renderWeightTable(data, subject);
+                } else {
+                    console.error('加载权重失败:', await response.text());
+                    document.getElementById('weight-table-container').innerHTML = 
+                        '<div class="no-data"><i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px; color: #f44336;"></i><p>加载权重数据失败</p></div>';
+                }
+            } catch (error) {
+                console.error('加载权重时出错:', error);
+                document.getElementById('weight-table-container').innerHTML = 
+                    '<div class="no-data"><i class="fas fa-exclamation-triangle" style="font-size: 48px; margin-bottom: 20px; color: #f44336;"></i><p>加载权重数据时出错</p></div>';
+            }
+        }
+        
+        // 渲染权重表格
+        function renderWeightTable(weights, subject) {
+            if (Object.keys(weights).length === 0) {
+                document.getElementById('weight-table-container').innerHTML = 
+                    '<div class="no-data"><i class="fas fa-file-alt" style="font-size: 48px; margin-bottom: 20px; color: #4a6fa5;"></i><p>该科目暂无文件</p></div>';
+                return;
+            }
+            
+            let tableHtml = `
+                <table class="weight-table">
+                    <thead>
+                        <tr>
+                            <th>缩略图</th>
+                            <th>文件名</th>
+                            <th>权重值</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            for (const [fileKey, weight] of Object.entries(weights)) {
+                const fileName = fileKey.split('/').pop();
+                const isImage = /\.(png|jpg|jpeg|gif|bmp)$/i.test(fileName);
+                const thumbnailSrc = isImage ? `/data/${fileKey}` : '/static/file-icon.png';
+                
+                tableHtml += `
+                    <tr>
+                        <td>
+                            ${isImage ? 
+                                `<img class="thumbnail" src="${thumbnailSrc}" alt="${fileName}" onclick="openModal('${thumbnailSrc}')">` : 
+                                `<div style="width: 100px; height: 80px; display: flex; align-items: center; justify-content: center; background: #f0f0f0; border-radius: 5px;">
+                                    <i class="fas fa-file-alt" style="font-size: 30px; color: #4a6fa5;"></i>
+                                </div>`
+                            }
+                        </td>
+                        <td>${fileName}</td>
+                        <td class="weight-value">${weight.toFixed(4)}</td>
+                        <td>
+                            <input type="number" class="weight-input" id="weight-${btoa(encodeURIComponent(fileKey)).replace(/[^a-zA-Z0-9]/g, '')}" 
+                                   value="${weight.toFixed(4)}" step="0.0001" min="0">
+                            <button class="save-button" onclick="saveWeight('${fileKey}', '${btoa(encodeURIComponent(fileKey)).replace(/[^a-zA-Z0-9]/g, '')}')">
+                                保存
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            tableHtml += `
+                    </tbody>
+                </table>
+            `;
+            
+            document.getElementById('weight-table-container').innerHTML = tableHtml;
+        }
+        
+        // 保存权重
+        async function saveWeight(fileKey, inputId) {
+            const inputElement = document.getElementById(`weight-${inputId}`);
+            const newWeight = parseFloat(inputElement.value);
+            
+            if (isNaN(newWeight) || newWeight < 0) {
+                alert('请输入有效的权重值');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/update_weight', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        image_key: fileKey,
+                        weight: newWeight
+                    })
+                });
+                
+                if (response.ok) {
+                    // 更新本地权重数据
+                    currentWeights[fileKey] = newWeight;
+                    // 更新显示的权重值
+                    // 找到对应的权重显示单元格并更新
+                    const rowElement = inputElement.closest('tr');
+                    const weightCell = rowElement.querySelector('.weight-value');
+                    if (weightCell) {
+                        weightCell.textContent = newWeight.toFixed(4);
+                    }
+                    alert('权重保存成功');
+                } else {
+                    console.error('保存权重失败:', await response.text());
+                    alert('保存权重失败');
+                }
+            } catch (error) {
+                console.error('保存权重时出错:', error);
+                alert('保存权重时出错');
+            }
+        }
+        
+        // 打开图片预览模态框
+        function openModal(src) {
+            document.getElementById('modal-image').src = src;
+            document.getElementById('image-modal').style.display = 'flex';
+        }
+        
+        // 关闭图片预览模态框
+        function closeModal() {
+            document.getElementById('image-modal').style.display = 'none';
+        }
+        
+        // 点击模态框外部关闭
+        document.getElementById('image-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>
