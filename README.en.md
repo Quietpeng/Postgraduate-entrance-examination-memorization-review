@@ -6,6 +6,15 @@
 
 ![](/img/首页.png)
 
+## Project page and screenshots
+
+Landing page (GitHub Pages): <https://quietpeng.github.io/Postgraduate-entrance-examination-memorization-review/en/>
+
+![Kaoyan memorization review landing page hero (desktop 1440×900)](docs/assets/shots/home.webp)
+![Kaoyan memorization review landing page on mobile (390×844, dark)](docs/assets/shots/home-mobile.webp)
+
+Both images render **the landing page itself**, not the app UI: the 30-note default, the 30-day interval cap, the 0.1-10 weight range and the run command all sit above the fold, and the page reflows to one column without external CSS, JS or webfonts.
+
 ## What it is
 
 A spaced-repetition review site for exam notes. You keep notes as images (screenshots or photos) under `data/<subject>/`; the app picks the notes to review today from a per-note weight and review interval, and you tell it how each one felt: familiar, blur or strange.

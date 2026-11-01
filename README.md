@@ -10,6 +10,15 @@
 
 ![](/img/背诵界面.png)
 
+## 展示页与截图
+
+项目页（GitHub Pages）：<https://quietpeng.github.io/Postgraduate-entrance-examination-memorization-review/>
+
+![考研背诵复习展示页首屏（中文，桌面 1440×900）](docs/assets/shots/home.webp)
+![考研背诵复习展示页移动端（中文，390×844，暗色）](docs/assets/shots/home-mobile.webp)
+
+两张图都是**展示页本身的渲染**（不是应用界面截图）：证明默认抽题 30 张、间隔上限 30 天、权重区间 0.1-10 与启动命令都在第一屏内；窄屏单列、暗色跟随系统，页面零外部 CSS/JS/字体。
+
 ## 项目简介
 
 这是一个基于间隔重复算法的考研笔记复习系统，旨在帮助用户高效复习考研笔记。系统通过智能算法根据用户对知识点的熟悉程度动态调整复习计划，提高复习效率。

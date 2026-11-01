@@ -1,0 +1,25 @@
+{
+  "url": "https://quietpeng.github.io/Postgraduate-entrance-examination-memorization-review/",
+  "viewport": "390x844",
+  "scale": 3,
+  "theme": "dark",
+  "lang": "zh-CN",
+  "images": [
+    {
+      "name": "home",
+      "src": "home.webp",
+      "width": 1440,
+      "height": 900,
+      "bytes": 54124,
+      "alt": "home 截图"
+    },
+    {
+      "name": "home-mobile",
+      "src": "home-mobile.webp",
+      "width": 390,
+      "height": 844,
+      "bytes": 37422,
+      "alt": "home-mobile 截图"
+    }
+  ]
+}
