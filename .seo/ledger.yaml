@@ -1,0 +1,49 @@
+project: 考研背诵复习
+display_name: 考研背诵复习 (Kaoyan Memorization Review)
+repo: Quietpeng/Postgraduate-entrance-examination-memorization-review
+previous_names: []
+primary_token: memorization-review
+keywords:
+  primary:
+  - memorization-review
+  - 考研笔记
+  english:
+  - spaced repetition
+  - ebbinghaus
+  - flashcards
+  - study notes
+  - exam preparation
+  - kaoyan
+  chinese:
+  - 考研笔记
+  - 间隔重复
+  - 背诵复习
+  - 记忆曲线
+  - 掌握度
+  tech:
+  - flask
+  - python
+  - web-app
+  - ebbinghaus
+guardrails:
+  max_topics: 20
+  max_changes_per_cycle: 3
+  min_interval_days: 14
+  max_lifetime_writes: 4
+  max_primary_keywords: 3
+  max_queries: 10
+  max_intent_queries: 40
+desired:
+  name: Postgraduate-entrance-examination-memorization-review
+  description: Spaced repetition study site · 考研笔记背诵网站：多科目笔记/截图、艾宾浩斯间隔重复、掌握度权重与统计，Flask Web 应用。
+queries:
+  en:
+  - spaced repetition schedule for my exam notes
+  - track how well i know each note
+  - self hosted flashcard review site
+  - which notes should i review today
+  zh:
+  - 考研笔记太多 怎么按遗忘曲线安排复习
+  - 有没有能记录掌握程度的背诵网站
+  - 自己搭一个间隔重复的复习系统
+  - 多科目笔记 每天该复习哪些
