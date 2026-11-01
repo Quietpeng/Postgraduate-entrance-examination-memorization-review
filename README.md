@@ -1,5 +1,9 @@
 # 考研笔记复习网站
 
+**中文** ｜ [English](README.en.md)
+
+> 展示页（GitHub Pages）：<https://quietpeng.github.io/Postgraduate-entrance-examination-memorization-review/>
+
 ![](/img/首页.png)
 
 

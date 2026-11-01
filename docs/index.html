@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>考研背诵复习：按遗忘曲线安排背诵笔记的间隔重复站</title>
+<meta name="description" content="考研笔记复习 Web 应用：笔记截图按科目管理，权重 × 间隔挑出每天该背的 30 张，三档反馈调整复习节奏，带掌握度统计页。Flask 单机自托管，Apache-2.0。">
+<link rel="canonical" href="https://quietpeng.github.io/Postgraduate-entrance-examination-memorization-review/">
+<link rel="alternate" hreflang="zh-CN" href="https://quietpeng.github.io/Postgraduate-entrance-examination-memorization-review/">
+<link rel="alternate" hreflang="en" href="https://quietpeng.github.io/Postgraduate-entrance-examination-memorization-review/en/">
+<link rel="alternate" hreflang="x-default" href="https://quietpeng.github.io/Postgraduate-entrance-examination-memorization-review/">
+<meta name="author" content="Quietpeng">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="考研背诵复习：按遗忘曲线安排背诵笔记的间隔重复站">
+<meta property="og:description" content="考研笔记复习 Web 应用：笔记截图按科目管理，权重 × 间隔挑出每天该背的 30 张，三档反馈调整复习节奏，带掌握度统计页。Flask 单机自托管，Apache-2.0。">
+<meta property="og:url" content="https://quietpeng.github.io/Postgraduate-entrance-examination-memorization-review/">
+<meta name="twitter:card" content="summary_large_image">
+
+<style>
+  :root { --bg:#fbfbfd; --fg:#17181c; --muted:#5b6070; --line:#e3e5ec; --accent:#1f3a93; --card:#fff; --warn:#8a5a00; --ok:#1a6b3c }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0e1015; --fg:#eceef4; --muted:#9aa1b2; --line:#252833; --accent:#8fb0ff; --card:#151821; --warn:#e0b25a; --ok:#7fd8a4 } }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.7 -apple-system,"Segoe UI","Noto Sans SC",system-ui,sans-serif; }
+  main { max-width:880px; margin:0 auto; padding:56px 20px 96px; }
+  header { display:flex; gap:16px; align-items:baseline; flex-wrap:wrap; margin-bottom:8px }
+  h1 { font-size:clamp(23px,3.8vw,33px); line-height:1.3; margin:0; flex:1 1 320px }
+  .sub { color:var(--muted); margin:6px 0 26px; font-size:14.5px }
+  h2 { font-size:20px; margin:46px 0 12px; padding-bottom:8px; border-bottom:1px solid var(--line) }
+  h3 { font-size:16.5px; margin:22px 0 6px }
+  .lede { font-size:17px } .lede strong { color:var(--accent) }
+  blockquote { margin:16px 0; padding:6px 0 6px 16px; border-left:3px solid var(--line); color:var(--muted) }
+  blockquote b { color:var(--fg) }
+  table { width:100%; border-collapse:collapse; margin:14px 0; font-size:14.5px }
+  th, td { text-align:left; padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:top }
+  th { color:var(--muted); font-weight:600 }
+  th[scope="row"] { color:var(--fg); font-weight:600; white-space:nowrap }
+  code, pre { background:rgba(127,127,127,.13); border-radius:6px; font-size:.92em }
+  code { padding:1px 5px } pre { padding:14px 16px; overflow:auto; line-height:1.55 }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:14px; margin:18px 0 }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px }
+  .card b { display:block; font-size:21px } .card span { color:var(--muted); font-size:13.5px }
+  a { color:var(--accent) }
+  a:focus-visible, .cta:focus-visible, summary:focus-visible { outline:3px solid var(--accent); outline-offset:3px; border-radius:4px }
+  .cta { display:inline-block; margin:8px 10px 8px 0; padding:10px 18px; border-radius:999px; background:var(--accent); color:#fff; text-decoration:none; font-weight:600 }
+  .cta.ghost { background:transparent; color:var(--accent); border:1px solid var(--accent) }
+  .skip { position:absolute; left:-9999px; top:0; background:var(--card); padding:10px 14px; border:1px solid var(--line); border-radius:8px; z-index:9 }
+  .skip:focus { left:12px; top:12px }
+  .lang { font-size:14px; color:var(--muted); text-decoration:none; border:1px solid var(--line); border-radius:999px; padding:4px 12px }
+  .note { border:1px solid var(--line); border-left:4px solid var(--warn); border-radius:8px; padding:12px 16px; background:var(--card); margin:16px 0 }
+  .note b { color:var(--warn) }
+  .ok { color:var(--ok) }
+  .gallery { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; margin:16px 0 }
+  .gallery figure { margin:0 }
+  .gallery img { width:100%; height:auto; border:1px solid var(--line); border-radius:10px }
+  .gallery figcaption { color:var(--muted); font-size:13.5px; margin-top:6px }
+  footer { margin-top:56px; color:var(--muted); font-size:13.5px; border-top:1px solid var(--line); padding-top:18px }
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; scroll-behavior:auto !important } }
+  @media print { .skip, .cta, .lang { display:none } body { background:#fff; color:#000 } a[href^="http"]::after { content:" (" attr(href) ")"; font-size:11px } }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "考研背诵复习（memorization-review）",
+  "alternateName": [
+    "memorization-review",
+    "考研笔记复习网站"
+  ],
+  "description": "基于间隔重复与权重系统的考研笔记复习 Web 应用：多科目笔记截图、熟悉/模糊/陌生三档反馈、掌握度权重与统计页，Flask 单机自托管。",
+  "url": "https://quietpeng.github.io/Postgraduate-entrance-examination-memorization-review/",
+  "codeRepository": "https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review",
+  "applicationCategory": "EducationalApplication",
+  "operatingSystem": "Python 3.7 及以上（Windows / Linux / macOS）",
+  "isAccessibleForFree": true,
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "CNY"
+  },
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "author": {
+    "@type": "Person",
+    "name": "Quietpeng"
+  },
+  "dateModified": "2026-11-01",
+  "inLanguage": [
+    "zh-CN",
+    "en"
+  ],
+  "keywords": "考研笔记, 间隔重复, 背诵复习, 记忆曲线, 掌握度, Flask"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "考研背诵复习",
+  "url": "https://quietpeng.github.io/Postgraduate-entrance-examination-memorization-review/",
+  "inLanguage": "zh-CN",
+  "publisher": {
+    "@type": "Person",
+    "name": "Quietpeng"
+  }
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">跳到正文</a>
+<main id="main">
+<article>
+
+<header>
+  <h1>考研背诵复习：按遗忘曲线安排今天该背哪些笔记</h1>
+  <a class="lang" href="./en/" hreflang="en" lang="en">English</a>
+</header>
+<p class="sub">最后更新：2026-11-01 · Apache-2.0 · Python 3.7 及以上 · Flask 2.3.2</p>
+
+<p class="lede"><strong>一句话</strong>：考研背诵复习（memorization-review）是一个跑在自己电脑上的 Flask 复习站——把笔记拍成图片丢进 <code>data/&lt;科目&gt;/</code>，它按每个知识点的「权重 + 复习间隔」挑出今天该看的 <b>30 张</b>，你点「熟悉 / 模糊 / 陌生」，间隔和权重就跟着变。</p>
+
+<blockquote>
+<p><b>「考研笔记太多，怎么按遗忘曲线安排复习？」</b><br>不用手动排表：系统给每张笔记记一个权重（初始 1.0）和一个间隔（初始 1 天），权重越高越早被抽到，答「熟悉」把间隔翻倍，答「陌生」把间隔减半并加权。</p>
+</blockquote>
+
+<p>
+  <a class="cta" href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review">GitHub 仓库</a>
+  <a class="cta ghost" href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/blob/main/README.md">README</a>
+</p>
+
+<pre><code>pip install -r requirements.txt
+python app.py        # 打开 http://0.0.0.0:5000</code></pre>
+
+<div class="grid">
+  <div class="card"><b>30 张</b><span>每次复习默认抽题数（<code>select_images_for_review(count=30)</code>）· <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/blob/main/app.py">app.py</a></span></div>
+  <div class="card"><b>30 天</b><span>间隔上限；「熟悉」按 ×2 延长到这里封顶 · <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/blob/main/app.py">app.py</a></span></div>
+  <div class="card"><b>6 个接口</b><span>科目 / 建科目 / 导入图片 / 更新权重 / 取权重 / 统计 · <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/blob/main/app.py">app.py</a></span></div>
+  <div class="card"><b>7 个模板</b><span>首页、科目、复习、统计、管理、权重管理 + base · <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/tree/main/templates">templates/</a></span></div>
+</div>
+
+<h2>先看事实：这个站是什么、跑在哪</h2>
+<table>
+  <tbody>
+    <tr><th scope="row">形态</th><td>单机 Flask Web 应用，无账号、无云端，数据都在本机 <code>data/</code> · <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/blob/main/README.md">README</a></td></tr>
+    <tr><th scope="row">许可</th><td>Apache License 2.0，见 <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/blob/main/LICENSE">LICENSE</a></td></tr>
+    <tr><th scope="row">运行环境</th><td>Python 3.7 及以上，Windows / Linux / macOS 均可 · <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/blob/main/README.md">README</a></td></tr>
+    <tr><th scope="row">依赖（锁定版本）</th><td>Flask 2.3.2、numpy 1.24.3、Pillow 9.5.0 · <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/blob/main/requirements.txt">requirements.txt</a></td></tr>
+    <tr><th scope="row">默认端口</th><td><code>python app.py</code> 后监听 <code>0.0.0.0:5000</code> · <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/blob/main/README.md">README</a></td></tr>
+    <tr><th scope="row">数据存放</th><td>笔记图片放 <code>data/&lt;科目名&gt;/</code>，权重与间隔写 <code>data/weights.json</code> · <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/tree/main/data">data/</a></td></tr>
+    <tr><th scope="row">笔记形态</th><td>图片（截图/拍照），不是富文本：系统按文件扫描并生成图片键 <code>科目/文件名</code> · <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/blob/main/app.py">app.py</a></td></tr>
+  </tbody>
+</table>
+
+<h2>它怎么决定「今天复习哪些」</h2>
+<p>每个知识点有两个状态：<b>权重</b>与<b>复习间隔</b>。新建科目时权重初始为 <b>1.0</b>、间隔初始为 <b>1 天</b>；每次抽题按权重加权随机，所以权重高的（你答过「陌生」的）更容易被抽到。权重被夹在 <b>0.1 到 10</b> 之间，避免某张笔记长期霸屏或彻底沉底。</p>
+<p>三个按钮是全部反馈形式，改动写在同一处：<b>熟悉</b>把间隔乘以 2（上限 30 天）并按 <code>np.exp(-0.1)</code> 衰减权重；<b>模糊</b>把间隔乘以 1.2 并让权重乘以 0.95；<b>陌生</b>把间隔乘以 0.5（下限 0.1 天）并把权重乘以 1.5。也就是说，「熟悉」是把你推出舒适区、拉长复习周期，「陌生」是把它拽回来、提高出现频率。算法实现集中在 <a href="https://github.com/Quietpeng/Postgraduate-entrance-examination-memorization-review/blob/main/app.py">app.py</a> 的 <code>update_weight</code> 与 <code>select_images_for_review</code>。</p>
+
+<table>
+  <thead><tr><th>你点的按钮</th><th>复习间隔变化</th><th>权重变化</th><th>下一次什么时候出现</th></tr></thead>
+  <tbody>
+    <tr><td><b>熟悉</b></td><td>×2，上限 30 天</td><td>× <code>exp(-0.1)</code>（约 0.905）</td><td>隔得更久，但权重仍在 0.1-10 区间内保留少量出现概率</td></tr>
+    <tr><td><b>模糊</b></td><td>×1.2</td><td>×0.95</td><td>近似维持原节奏，小幅降权</td></tr>
+    <tr><td><b>陌生</b></td><td>×0.5，下限 0.1 天</td><td>×1.5，上限 10</td><td>更快回到今天的复习队列</td></tr>
+  </tbody>
+</table>
+
+<h2>和 Anki、纸质错题本的区别</h2>
+<table>
+  <thead><tr><th>维度</th><th>考研背诵复习</th><th>Anki</th><th>纸质错题本</th></tr></thead>
+  <tbody>
+    <tr><td>笔记形态</td><td><b>直接放截图/拍照</b>，不用把笔记拆成卡片</td><td>需要自建卡片（正面/背面/填空）</td><td>手写或粘贴</td></tr>
+    <tr><td>调度依据</td><td><b>权重 × 间隔</b>两套状态，权重决定被抽概率</td><td>SM-2 系列的复习队列</td><td>你自己翻</td></tr>
+    <tr><td>掌握度可视化</td><td>统计页给每科文件数、平均权重与分布</td><td>插件与统计图</td><td>没有</td></tr>
+    <tr><td>数据在哪</td><td><b>本机 <code>data/</code> 目录</b>，可整体拷走</td><td>本地库文件，可同步服务</td><td>纸面</td></tr>
+    <tr><td>不适合什么场景</td><td>需要手机多端同步、团队共享题库、按知识点做精确检索的场景</td><td>只想丢图片、不想建卡片的人</td><td>需要统计和自动排期的人</td></tr>
+  </tbody>
+</table>
+
+<h2>常见问题（FAQ）</h2>
+<h3>考研笔记太多 怎么按遗忘曲线安排复习？</h3>
+<p>不用排表，把笔记按科目丢进对应目录即可：<code>data/&lt;科目&gt;/</code>。剩下的交给权重加间隔：新建时权重 1.0、间隔 1 天，答「熟悉」间隔翻倍（最多 30 天），答「陌生」间隔减半（最少 0.1 天）并提高权重。你不需要自己排表，只要每天打开首页点「开始复习」。</p>
+<h3>有没有能记录掌握程度的背诵网站？</h3>
+<p>这个就是：每张笔记有 0.1 到 10 的权重，权重越高表示越需要关注，统计页会按科目给出文件数、平均权重和分布。它是单机 Flask 应用，数据写在 <code>data/weights.json</code>，没有账号体系，也不需要联网。</p>
+<h3>自己搭一个间隔重复的复习系统，需要准备什么？</h3>
+<p>一台能跑 Python 3.7 及以上的电脑即可：<code>pip install -r requirements.txt</code> 装 Flask 2.3.2、numpy 1.24.3、Pillow 9.5.0，再 <code>python app.py</code> 打开 5000 端口。笔记用图片，按科目建目录即可，不需要数据库。</p>
+<h3>多科目笔记 每天该复习哪些？</h3>
+<p>首页按科目展示，选科目后系统按权重加权随机抽 30 张（默认值，可在复习页改数量）。权重高的先被抽到，所以「陌生」过的内容会更快回到队列；想只练某一科，就在首页选那一科。</p>
+<h3>笔记要用什么格式？可以直接拍照吗？</h3>
+<p>直接拍照或截图都行，系统按文件扫描，图片键是 <code>科目/文件名</code>。建议用清晰的图片格式（README 的注意事项里写的是「建议使用清晰的图片格式」）。代码不做 OCR，所以图片里的字不会被检索或去重。</p>
+<h3>权重和复习间隔存在哪？换电脑会丢吗？</h3>
+<p>全部存在项目目录里，不在浏览器或数据库：<code>data/weights.json</code> 存权重与间隔，每科目录存笔记图片，整套 <code>data/</code> 拷走就等于迁移。没有云同步，换电脑不拷目录就是从头开始，权重会重新初始化成 1.0。</p>
+<h3>这个站支持手机访问或多端同步吗？</h3>
+<p>它只提供浏览器页面，没有 App：服务监听 <code>0.0.0.0:5000</code>，同一局域网内的手机可以打开电脑的 IP 访问，但没有账号、没有同步服务，多台设备各改各的会互相覆盖权重文件。需要多端同步请用带同步的方案。</p>
+
+<h2>5 步跑起来</h2>
+<ol>
+  <li><code>pip install -r requirements.txt</code>（Flask 2.3.2 / numpy 1.24.3 / Pillow 9.5.0）。</li>
+  <li>确认根目录有 <code>data/</code>，没有就 <code>mkdir data</code>；有写权限。</li>
+  <li><code>python app.py</code>，浏览器打开 <code>http://0.0.0.0:5000</code>。</li>
+  <li>首页进「管理系统」→「添加新科目」，再把该科的笔记图片放进 <code>data/&lt;科目&gt;/</code>。</li>
+  <li>首页选科目 → 设复习数量（默认 30）→「开始复习」，逐张点熟悉/模糊/陌生；进度去统计页看。</li>
+</ol>
+<div class="note"><b>边界</b>：这是个人自用的单机工具，不是云服务——没有账号、没有云同步、没有 OCR，也不做多端冲突合并。作者：Quietpeng，个人项目而非公司产品；许可 Apache License 2.0。本页所有数字（30 张、30 天、0.1-10 权重区间、5000 端口、6 个接口、7 个模板）都能在仓库的 app.py、README、requirements.txt 与 templates/ 里查到。</div>
+
+</article>
+</main>
+
+<script>
+/* 语言自动切换：只在浏览器首选语言与当前页语言不一致时跳转。
+   护栏：① 尊重 ?lang= 显式覆盖；② 跳过爬虫 UA（避免被判 cloaking）；③ replace 不留历史栈。 */
+(function () {
+  try {
+    if (/[?&]lang=/.test(location.search)) return;
+    if (/bot|crawl|spider|slurp|googlebot|bingbot|baiduspider/i.test(navigator.userAgent)) return;
+    var want = (navigator.languages && navigator.languages[0]) || navigator.language || "";
+    var cur = document.documentElement.lang || "";
+    if (/^zh/i.test(want) === /^zh/i.test(cur)) return;
+    var t = "en/";
+    if (t && t !== location.pathname) location.replace(t + location.search + location.hash);
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>
